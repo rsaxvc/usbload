@@ -3,7 +3,7 @@ Name           : @PACKAGE@
 Version        : @VERSION@
 Release        : 1
 Copyright      : GPL
-Url            : https://github.com/rsaxvc/ioload
+Url            : https://github.com/rsaxvc/usbload
 Packager       : Richard Allen <rsaxvc@rsaxvc.net>
 Group          : Applications/System
 Source         : %{name}-%{version}.tar.gz

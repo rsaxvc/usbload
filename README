@@ -1,18 +1,18 @@
-ioload 0.7.3
-real time monitor for disk traffic
+usbload 0.7.3
+real time monitor for dUSB traffic
 Copyright (C) 2016 - 2017 by Richard Allen <rsaxvc@rsaxvc.net>
 Copyright (C) 2001 - 2011 by Roland Riegel <feedback@roland-riegel.de>
 
 1. Introduction
    ------------
 
-This is version 0.7.3 of ioload, a console application which monitors disk
+This is version 0.7.3 of usbload, a console application which monitors USB
 traffic and bandwidth usage in real time.
 It visualizes the in- and outgoing traffic using two graphs and provides
-additional info like total amount of transfered data and min/max disk
+additional info like total amount of transfered data and min/max USB
 usage.
 
-2. Installing / Compiling ioload
+2. Installing / Compiling usbload
    ----------------------------
 
 Compiling is done by running
@@ -21,29 +21,29 @@ Compiling is done by running
 make
 
 in the directory where this README is.
-To install ioload, you have to be root:
+To install usbload, you have to be root:
 
 su
 make install
 
 You can find more detailed information in the file INSTALL in this directory.
 
-3. Using ioload
+3. Using usbload
    -----------
 
-To learn about the command line switches and the usage of ioload in general,
+To learn about the command line switches and the usage of usbload in general,
 simply run:
 
-ioload --help
+usbload --help
 
-Alternatively, there is a ioload man page available by typing:
+Alternatively, there is a usbload man page available by typing:
 
-man ioload
+man usbload
 
-4. Uninstalling ioload
+4. Uninstalling usbload
    ------------------
 
-If you want to uninstall ioload (I hope you never want to ;-), run:
+If you want to uninstall usbload (I hope you never want to ;-), run:
 
 make uninstall
 
@@ -52,7 +52,7 @@ in the build directory.
 5. Getting help
    ------------
 
-If you have problems with compiling, installing or using ioload, you may
+If you have problems with compiling, installing or using usbload, you may
 mail me to feedback@roland-riegel.de.
 
 6. Copyright / License

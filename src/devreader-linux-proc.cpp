@@ -14,6 +14,7 @@
 #include <fstream>
 #include <list>
 #include <string>
+#include <sstream>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -33,7 +34,7 @@ DevReaderLinuxProc::~DevReaderLinuxProc()
 bool DevReaderLinuxProc::isAvailable()
 {
     struct stat procStat;
-    if(stat("/proc/diskstats", &procStat) < 0 || ! S_ISREG(procStat.st_mode))
+    if(stat("/proc/usbstats", &procStat) < 0 || ! S_ISREG(procStat.st_mode))
         return false;
 
     return true;
@@ -41,42 +42,46 @@ bool DevReaderLinuxProc::isAvailable()
 
 struct diskstats
 {
-    unsigned long long major;
-    unsigned long long minor;
+    unsigned long bus;
+    unsigned long dev;
+	unsigned long long stats_packets[2];
+	unsigned long long stats_bytes[2];
     string name;
-    unsigned long long read_completed;
-    unsigned long long read_merged;
-    unsigned long long read_sectors;
-    unsigned long long read_time;
-    unsigned long long write_completed;
-    unsigned long long write_merged;
-    unsigned long long write_sectors;
-    unsigned long long write_time;
-    unsigned long long io_in_progress;
-    unsigned long long io_time;
-    unsigned long long io_time_weighted;
 
     bool parse(std::string input)
     {
         // read device data
+		unsigned long long temp;
         istringstream sin(input);
 
         sin
-            >> major
-            >> minor
-            >> name
-            >> read_completed
-            >> read_merged
-            >> read_sectors
-            >> read_time
-            >> write_completed
-            >> write_merged
-            >> write_sectors
-            >> write_time
-            >> io_in_progress
-            >> io_time
-            >> io_time_weighted
-        ;
+            >> bus
+            >> dev;
+
+        for( unsigned i = 0; i < 2; ++i )
+        {
+	        stats_bytes[i] = 0;
+            for( unsigned j = 0; j < 4; ++j )
+            {
+				sin >> temp;
+				stats_bytes[i] += temp;
+            }
+        }
+
+        for( unsigned i = 0; i < 2; ++i )
+        {
+            stats_packets[i] = 0;
+            for( unsigned j = 0; j < 4; ++j )
+            {
+                sin >> temp;
+                stats_packets[i] += temp;
+            }
+        }
+
+        std::ostringstream out;
+        out << bus << "-" << dev;
+        name = out.str();
+
         return !sin.fail();
     }
 };
@@ -84,11 +89,11 @@ struct diskstats
 list<string> DevReaderLinuxProc::findAllDevices()
 {
     list<string> interfaceNames;
-    
-    ifstream fin("/proc/diskstats");
+
+    ifstream fin("/proc/usbstats");
     if(!fin.is_open())
         return interfaceNames;
-    
+
     // read all remaining lines and extract the device name
     while(fin.good())
     {
@@ -100,7 +105,7 @@ list<string> DevReaderLinuxProc::findAllDevices()
 
         interfaceNames.push_back(d.name);
     }
-    
+
     return interfaceNames;
 }
 
@@ -108,8 +113,8 @@ void DevReaderLinuxProc::readFromDevice(DataFrame& dataFrame)
 {
     if(m_deviceName.empty())
         return;
-    
-    ifstream fin("/proc/diskstats");
+
+    ifstream fin("/proc/usbstats");
     if(!fin.is_open())
         return;
 
@@ -128,21 +133,20 @@ void DevReaderLinuxProc::readFromDevice(DataFrame& dataFrame)
         if(m_deviceName != d.name)
             continue;
 
-        unsigned block_size = 512;
-        dataFrame.setTotalDataIn(d.read_sectors*block_size);
-        dataFrame.setTotalDataOut(d.write_sectors*block_size);
+        dataFrame.setTotalDataIn(d.stats_bytes[0]);
+        dataFrame.setTotalDataOut(d.stats_bytes[1]);
 
-        dataFrame.setTotalPacketsIn(d.read_sectors);
-        dataFrame.setTotalPacketsOut(d.write_sectors);
+        dataFrame.setTotalPacketsIn(d.stats_packets[0]);
+        dataFrame.setTotalPacketsOut(d.stats_packets[1]);
 
         dataFrame.setTotalErrorsIn(0);
         dataFrame.setTotalErrorsOut(0);
-        
-        dataFrame.setTotalDropsIn(d.read_merged);
-        dataFrame.setTotalDropsOut(d.write_merged);
-        
+
+        dataFrame.setTotalDropsIn(0);
+        dataFrame.setTotalDropsOut(0);
+
         dataFrame.setValid(true);
-        
+
         break;
     }
 }

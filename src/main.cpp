@@ -570,7 +570,7 @@ void printHelp(bool error)
         << "                Default is h.\n"
         << "-U h|b|k|m|g    Same as -u, but for a total amount of data (without \"/s\").\n"
         << "   H|B|K|M|G    Default is H.\n"
-        << "devices         Disks to use.\n"
+        << "devices         Devices to use.\n"
         << "                Default is to use all auto-detected devices.\n"
         << "--help\n"
         << "-h              Print this help.\n\n"
